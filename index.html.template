@@ -46,10 +46,10 @@
             // Debounce for 1ms
             debounceTimer = setTimeout(() => {
                 postText(text);
-            }, 1);
+            }, 500);
         });
 
-      setInterval(getText, 1);
+      setInterval(getText, 500);
       getText();
 
     // Handle the `paste` event
