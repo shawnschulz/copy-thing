@@ -1,0 +1,95 @@
+<body>
+    <div class="container">
+        <div>
+            <label for="textInput">enter something to copy:</label>
+            <input 
+                type="text" 
+                id="textInput" 
+            >
+        </div>
+        
+        <div>
+            <div id="result"></div>
+        </div>
+    </div>
+<style>
+        body {
+            font-size: 64px;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        input, button {
+            font-size: 64px;
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        const urlInput = document.getElementById('textInput');
+        const resultDiv = document.getElementById('result');
+        
+        // Debounce function to avoid too many requests
+        let debounceTimer;
+        
+        urlInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            
+          const url = "http://{ip_address}:3790/api/post_text";
+          let text = document.getElementById('textInput').value; 
+            
+            // Debounce for 500ms
+            debounceTimer = setTimeout(() => {
+                postText(text);
+            }, 500);
+        });
+      setInterval(getText, 500);
+      getText();
+
+      async function postText(textValue) {
+        try {
+                const response = await fetch('http://{ip_address}:3790/api/post_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: textValue
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Success:', data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+      }
+        
+        async function getText() {
+            try {
+                const response = await fetch("http://{ip_address}:3790/api/get_text");
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.text !== undefined) {
+                  if (resultDiv.textContent != data.text) {
+                    resultDiv.textContent = data.text;
+                    resultDiv.className = '';
+                  }
+                } else {
+                    resultDiv.textContent = 'No "text" field found in the response';
+                    resultDiv.className = 'error';
+                }
+                
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
