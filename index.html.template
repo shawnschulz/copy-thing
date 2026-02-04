@@ -1,7 +1,7 @@
 <body>
     <div class="container">
         <div>
-            <label for="textInput">enter something to copy:</label>
+            <label for="textInput">copy stuff into the text input or copy an image into the page</label>
             <input 
                 type="text" 
                 id="textInput" 
@@ -10,6 +10,7 @@
         
         <div>
             <div id="result"></div>
+            <img id="myImage" src="http://{ip_address}:3790/image.jpg" alt="Image">
         </div>
     </div>
 <style>
@@ -43,8 +44,38 @@
                 postText(text);
             }, 500);
         });
+
       setInterval(getText, 500);
       getText();
+
+    // Handle the `paste` event
+    document.addEventListener('paste', function (evt) {
+        // Get the data of clipboard
+        const clipboardItems = evt.clipboardData.items;
+        const items = [].slice.call(clipboardItems).filter(function (item) {
+            // Filter the image items only
+            return item.type.indexOf('image') !== -1;
+        });
+        if (items.length === 0) {
+            return;
+        }
+
+        const item = items[0];
+        // Get the blob of image
+        const blob = item.getAsFile();
+        // const imageEle = document.getElementById('preview');
+        // imageEle.src = URL.createObjectURL(blob);
+
+        fetch('http://{ip_address}:3790/api/post_image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'image/jpeg'
+            },
+            body: blob // Send file directly as body
+        })
+        .then(response => response.text())
+        .then(data => console.log(data));
+    });
 
       async function postText(textValue) {
         try {
